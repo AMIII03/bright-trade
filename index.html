@@ -1,0 +1,1653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bright — Financial Engineering & Trading</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --gold:       #C9A84C;
+      --gold-light: #E2C46A;
+      --gold-dim:   #7A5E28;
+      --gold-pale:  rgba(201,168,76,0.08);
+      --bg:         #060606;
+      --bg2:        #0A0A0A;
+      --surface:    #0F0F0F;
+      --border:     rgba(201,168,76,0.12);
+      --border2:    rgba(255,255,255,0.06);
+      --text:       #EDEAE2;
+      --muted:      #5A5650;
+      --muted2:     #8A8680;
+      --dot-color:  rgba(201,168,76,0.12);
+    }
+
+    html.light {
+      --gold:       #A8771E;
+      --gold-light: #C9A84C;
+      --gold-dim:   #7A5E28;
+      --gold-pale:  rgba(168,119,30,0.07);
+      --bg:         #F7F4EE;
+      --bg2:        #F0EDE5;
+      --surface:    #EAE6DC;
+      --border:     rgba(168,119,30,0.18);
+      --border2:    rgba(0,0,0,0.07);
+      --text:       #1C1A14;
+      --muted:      #8A8070;
+      --muted2:     #6A6058;
+      --dot-color:  rgba(168,119,30,0.1);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Space Grotesk', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    ::-webkit-scrollbar { width: 3px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--gold-dim); }
+
+    /* dot grid background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: radial-gradient(circle, var(--dot-color) 1px, transparent 1px);
+      background-size: 36px 36px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── Noise overlay ── */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.4;
+    }
+
+    section, nav, footer { position: relative; z-index: 1; }
+
+    /* ── NAVBAR ───────────────────────────────── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(6,6,6,0.92);
+      backdrop-filter: blur(20px);
+      transition: background 0.3s ease, border-color 0.3s ease;
+    }
+    html.light nav {
+      background: rgba(247,244,238,0.92);
+    }
+
+    .nav-logo {
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+    }
+    .nav-logo img {
+      height: 38px;
+      width: auto;
+      display: block;
+      mix-blend-mode: screen;
+      filter: drop-shadow(0 0 8px rgba(201,168,76,0.5));
+    }
+    html.light .nav-logo img {
+      mix-blend-mode: multiply;
+      filter: invert(1) drop-shadow(0 0 6px rgba(168,119,30,0.3));
+    }
+
+    .nav-center {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .nav-center a {
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nav-center a:hover { color: var(--text); }
+
+    .nav-right {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.68rem;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+    }
+
+    .nav-burger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+    .nav-burger span { display: block; width: 22px; height: 1.5px; background: var(--gold); }
+
+    /* ── HERO ─────────────────────────────────── */
+    #hero {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: 1fr auto;
+      padding-top: 60px;
+    }
+
+    .hero-main {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 80px 40px 40px;
+      overflow: hidden;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .hero-eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    .hero-eyebrow-line {
+      width: 40px;
+      height: 1px;
+      background: var(--gold-dim);
+    }
+
+    .hero-eyebrow-text {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.68rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+
+    .hero-logo-text {
+      display: block;
+      width: 100%;
+      max-width: 340px;
+      height: auto;
+      margin-bottom: 16px;
+      filter: invert(1) drop-shadow(0 0 12px rgba(201,168,76,0.5));
+      opacity: 0.9;
+    }
+
+    .hero-name {
+      font-size: clamp(5rem, 13vw, 10rem);
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      line-height: 0.9;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .hero-name-accent {
+      display: block;
+      background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 50%, var(--gold-dim) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-row {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 40px;
+      margin-top: 40px;
+    }
+
+    .hero-desc {
+      max-width: 420px;
+      font-size: 0.95rem;
+      line-height: 1.75;
+      color: var(--muted2);
+      font-weight: 400;
+    }
+
+    .hero-desc strong { color: var(--text); font-weight: 600; }
+
+    .hero-actions {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 28px;
+      background: var(--gold);
+      color: var(--bg);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      text-decoration: none;
+      border-radius: 2px;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+
+    .btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
+
+    .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted2);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .btn-ghost:hover { color: var(--text); }
+    .btn-ghost::after { content: '→'; }
+
+    /* hero bottom bar */
+    .hero-bar {
+      border-top: 1px solid var(--border);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    .hero-bar-item {
+      padding: 24px 40px;
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .hero-bar-item:last-child { border-right: none; }
+
+    .hbi-val {
+      font-family: 'Space Mono', monospace;
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: -0.02em;
+    }
+
+    .hbi-key {
+      font-size: 0.68rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* ── SECTION BASE ─────────────────────────── */
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 40px;
+    }
+
+    .sec-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .sec-title {
+      font-size: clamp(2rem, 4vw, 2.8rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+    }
+
+    /* ── TRADING STYLE ────────────────────────── */
+    #about {
+      padding: 120px 0;
+      border-top: 1px solid var(--border);
+    }
+
+    .about-layout {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 80px;
+    }
+
+    .about-left { padding-top: 4px; }
+
+    .about-intro {
+      font-size: 0.92rem;
+      line-height: 1.8;
+      color: var(--muted2);
+      margin-top: 24px;
+    }
+
+    .about-intro strong { color: var(--text); }
+
+    /* Timeline */
+    .timeline { position: relative; }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 12px; bottom: 12px;
+      width: 1px;
+      background: linear-gradient(to bottom, transparent, var(--gold-dim) 15%, var(--gold-dim) 85%, transparent);
+    }
+
+    .tl-item {
+      padding-left: 32px;
+      padding-bottom: 52px;
+      position: relative;
+    }
+
+    .tl-item:last-child { padding-bottom: 0; }
+
+    .tl-dot {
+      position: absolute;
+      left: -4px;
+      top: 8px;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--bg);
+      border: 1.5px solid var(--gold-dim);
+    }
+
+    .tl-item.current .tl-dot {
+      background: var(--gold);
+      border-color: var(--gold);
+      box-shadow: 0 0 16px rgba(201,168,76,0.6);
+    }
+
+    .tl-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .tl-phase {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .tl-phase-name {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+
+    .tl-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 8px;
+      letter-spacing: -0.01em;
+    }
+
+    .tl-desc {
+      font-size: 0.85rem;
+      line-height: 1.75;
+      color: var(--muted2);
+      margin-bottom: 14px;
+    }
+
+    .tl-desc em { font-style: italic; color: var(--gold-light); }
+
+    .tl-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .tl-tag {
+      font-family: 'Space Mono', monospace;
+      padding: 3px 10px;
+      border: 1px solid var(--border);
+      font-size: 0.64rem;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+      border-radius: 1px;
+    }
+
+    .about-quote {
+      margin-top: 56px;
+      padding: 24px 28px;
+      border-left: 2px solid var(--gold-dim);
+      background: var(--gold-pale);
+    }
+
+    .about-quote p {
+      font-size: 0.88rem;
+      line-height: 1.8;
+      color: var(--muted2);
+      font-style: italic;
+    }
+
+    .about-quote strong { color: var(--text); font-style: normal; }
+
+    /* ── SKILLS ───────────────────────────────── */
+    #skills {
+      padding: 120px 0;
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .skills-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 56px;
+    }
+
+    .skills-count {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.68rem;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+    }
+
+    .skills-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .skill-row {
+      display: grid;
+      grid-template-columns: 40px 1fr auto;
+      align-items: start;
+      gap: 24px;
+      padding: 28px 0;
+      border-bottom: 1px solid var(--border2);
+      transition: background 0.2s;
+      cursor: default;
+    }
+
+    .skill-row:first-child { border-top: 1px solid var(--border2); }
+
+    .skill-row:hover { background: var(--gold-pale); margin: 0 -40px; padding-left: 40px; padding-right: 40px; }
+
+    .skill-num {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--muted);
+      padding-top: 3px;
+    }
+
+    .skill-body { }
+
+    .skill-name {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.01em;
+      margin-bottom: 6px;
+    }
+
+    .skill-desc {
+      font-size: 0.82rem;
+      line-height: 1.65;
+      color: var(--muted2);
+    }
+
+    .skill-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      justify-content: flex-end;
+      max-width: 220px;
+    }
+
+    .skill-tag {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.6rem;
+      padding: 2px 8px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 1px;
+    }
+
+    /* ── PROP FIRMS ───────────────────────────── */
+    #propfirm { padding: 120px 0; }
+
+    .firms-header {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      align-items: end;
+      margin-bottom: 56px;
+    }
+
+    .firms-header p {
+      font-size: 0.88rem;
+      line-height: 1.75;
+      color: var(--muted2);
+    }
+
+    .certs-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .cert-card {
+      position: relative;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 32px 28px 28px;
+      background: var(--surface);
+      overflow: hidden;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .cert-card:hover { border-color: var(--gold-dim); transform: translateY(-2px); }
+
+    .cert-preview-btn {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      border-radius: 2px;
+      margin-bottom: 20px;
+      border: 1px solid var(--border2);
+      background: var(--bg2);
+      cursor: pointer;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color 0.2s;
+    }
+    .cert-preview-btn:hover { border-color: var(--gold-dim); }
+    .cert-preview-btn img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      filter: blur(3px) brightness(0.5);
+      transition: filter 0.3s;
+    }
+    .cert-preview-btn:hover img { filter: blur(2px) brightness(0.65); }
+    .cert-preview-btn .cert-preview-label {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.62rem;
+      letter-spacing: 0.12em;
+      color: var(--gold-light);
+      pointer-events: none;
+    }
+    .cert-preview-btn .cert-preview-label svg {
+      width: 22px; height: 22px;
+      stroke: var(--gold);
+      opacity: 0.85;
+    }
+
+    /* Lightbox */
+    .cert-lightbox {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 999;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(8px);
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .cert-lightbox.open { display: flex; }
+    .cert-lightbox img {
+      max-width: min(480px, 90vw);
+      max-height: 90vh;
+      border-radius: 4px;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.6);
+      object-fit: contain;
+    }
+    .cert-lightbox-close {
+      position: fixed;
+      top: 20px; right: 24px;
+      background: none;
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 50%;
+      width: 36px; height: 36px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      color: rgba(255,255,255,0.7);
+      font-size: 1rem;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .cert-lightbox-close:hover { border-color: var(--gold); color: var(--gold); }
+
+    /* corner ornaments */
+    .cert-card::before, .cert-card::after {
+      content: '';
+      position: absolute;
+      width: 14px; height: 14px;
+      border-color: var(--gold-dim);
+      border-style: solid;
+    }
+    .cert-card::before { top: 10px; left: 10px; border-width: 1px 0 0 1px; }
+    .cert-card::after  { bottom: 10px; right: 10px; border-width: 0 1px 1px 0; }
+
+    .cert-card.suspended {
+      border-color: rgba(180,80,80,0.2);
+      opacity: 0.7;
+    }
+    .cert-card.suspended::before,
+    .cert-card.suspended::after { border-color: rgba(180,80,80,0.3); }
+
+    .cert-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.58rem;
+      letter-spacing: 0.18em;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+
+    .cert-firm {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 6px;
+      letter-spacing: -0.02em;
+    }
+
+    .cert-meta {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.62rem;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+      margin-bottom: 28px;
+    }
+
+    .cert-divider {
+      height: 1px;
+      background: var(--border);
+      margin-bottom: 20px;
+    }
+
+    .cert-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.1em;
+      padding: 4px 12px;
+      border-radius: 2px;
+      background: rgba(111,207,151,0.08);
+      border: 1px solid rgba(111,207,151,0.2);
+      color: #6FCF97;
+    }
+    .cert-status.suspended {
+      background: rgba(180,80,80,0.08);
+      border-color: rgba(180,80,80,0.2);
+      color: #C97070;
+    }
+
+    .cert-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+    .cert-status.suspended .cert-dot { animation: none; }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    .cert-gold-line {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+    }
+    .cert-card.suspended .cert-gold-line { display: none; }
+
+    @media (max-width: 900px) {
+      .certs-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ── E-BOOK ───────────────────────────────── */
+    #ebook {
+      padding: 120px 0;
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .ebook-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 64px;
+      align-items: center;
+    }
+
+    .ebook-visual {
+      position: relative;
+    }
+
+    .ebook-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 48px 40px;
+      border-radius: 3px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .ebook-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+
+    .ebook-card-type {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.62rem;
+      letter-spacing: 0.2em;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 32px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .ebook-card-type::before {
+      content: '';
+      width: 24px;
+      height: 1px;
+      background: var(--gold-dim);
+    }
+
+    .ebook-card-title {
+      font-size: 1.6rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      margin-bottom: 8px;
+    }
+
+    .ebook-card-sub {
+      font-size: 0.8rem;
+      color: var(--muted);
+      font-family: 'Space Mono', monospace;
+      margin-bottom: 32px;
+    }
+
+    .ebook-card-divider {
+      height: 1px;
+      background: var(--border);
+      margin-bottom: 28px;
+    }
+
+    .ebook-card-chapters {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .ebook-chapter {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.8rem;
+      color: var(--muted2);
+    }
+
+    .ebook-chapter-num {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.62rem;
+      color: var(--gold-dim);
+      width: 20px;
+    }
+
+    .ebook-info p {
+      font-size: 0.92rem;
+      line-height: 1.8;
+      color: var(--muted2);
+      margin-bottom: 24px;
+    }
+
+    .ebook-info p strong { color: var(--text); }
+
+    .ebook-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 36px;
+    }
+
+    .ebook-tag {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.64rem;
+      padding: 5px 12px;
+      border: 1px solid var(--border);
+      color: var(--muted2);
+    }
+
+    /* ── COURSES ──────────────────────────────── */
+    #courses { padding: 120px 0; }
+
+    .courses-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 56px;
+    }
+
+    .courses-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+    }
+
+    .course-card {
+      background: var(--bg);
+      padding: 36px;
+      transition: background 0.25s;
+      cursor: pointer;
+    }
+
+    .course-card:hover { background: var(--surface); }
+
+    .course-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .course-level {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 1px;
+    }
+
+    .level-b { background: rgba(201,168,76,0.1); color: var(--gold); }
+    .level-i { background: rgba(201,168,76,0.18); color: var(--gold-light); }
+    .level-a { background: rgba(201,168,76,0.28); color: var(--gold-light); }
+
+    .course-arrow {
+      color: var(--muted);
+      font-size: 0.9rem;
+      transition: color 0.2s, transform 0.2s;
+    }
+
+    .course-card:hover .course-arrow { color: var(--gold); transform: translate(3px, -3px); }
+
+    .course-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      margin-bottom: 10px;
+    }
+
+    .course-desc {
+      font-size: 0.82rem;
+      line-height: 1.7;
+      color: var(--muted2);
+      margin-bottom: 24px;
+    }
+
+    .course-footer {
+      display: flex;
+      gap: 20px;
+    }
+
+    .course-meta {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--muted);
+    }
+
+    .course-meta span { color: var(--gold); }
+
+    /* ── CONTACT ──────────────────────────────── */
+    #contact {
+      padding: 120px 0;
+      background: var(--bg2);
+      border-top: 1px solid var(--border);
+    }
+
+    .contact-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+
+    .contact-left .sec-title { font-size: clamp(2rem, 5vw, 3.5rem); }
+
+    .contact-left p {
+      margin-top: 20px;
+      font-size: 0.92rem;
+      line-height: 1.8;
+      color: var(--muted2);
+    }
+
+    .contact-right {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .contact-link {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 24px;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      text-decoration: none;
+      transition: border-color 0.25s, background 0.25s;
+    }
+
+    .contact-link:hover {
+      border-color: var(--gold-dim);
+      background: var(--gold-pale);
+    }
+
+    .contact-link-label {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .contact-link-icon { font-size: 1rem; }
+
+    .contact-link-name {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .contact-link-sub {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.62rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .contact-link-arrow {
+      color: var(--muted);
+      font-size: 0.8rem;
+      transition: color 0.2s;
+    }
+
+    .contact-link:hover .contact-link-arrow { color: var(--gold); }
+
+    /* ── FOOTER ───────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 24px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      z-index: 1;
+    }
+
+    .footer-logo {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--gold);
+    }
+
+    .footer-copy {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.62rem;
+      color: var(--muted);
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 24px;
+    }
+
+    .footer-links a {
+      font-size: 0.7rem;
+      color: var(--muted);
+      text-decoration: none;
+      letter-spacing: 0.08em;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover { color: var(--text); }
+
+    /* ── Responsive ───────────────────────────── */
+    @media (max-width: 1200px) {
+      .nav-right { display: none; }
+      .nav-center { gap: 20px; }
+    }
+
+    @media (max-width: 900px) {
+      nav { padding: 0 20px; }
+      .nav-center { display: none; }
+      .nav-burger { display: flex; }
+      .nav-right { display: none; }
+      .hero-main { padding: 60px 20px 30px; }
+      .hero-row { flex-direction: column; align-items: flex-start; }
+      .hero-actions { align-items: flex-start; }
+      .hero-bar { grid-template-columns: repeat(2,1fr); }
+      .hero-bar-item:nth-child(2) { border-right: none; }
+      .about-layout { grid-template-columns: 1fr; gap: 40px; }
+      .skills-header { flex-direction: column; align-items: flex-start; gap: 8px; }
+      .skill-row { grid-template-columns: 32px 1fr; }
+      .skill-tags { display: none; }
+      .firms-header { grid-template-columns: 1fr; }
+      .firms-table-head { display: none; }
+      .firm-row { grid-template-columns: 1fr 1fr; gap: 8px; }
+      .ebook-layout { grid-template-columns: 1fr; }
+      .courses-grid { grid-template-columns: 1fr; }
+      .contact-layout { grid-template-columns: 1fr; gap: 40px; }
+      .container { padding: 0 20px; }
+      footer { padding: 20px; flex-direction: column; gap: 12px; text-align: center; }
+      .footer-links { display: none; }
+    }
+
+    /* ── Mobile nav ───────────────────────────── */
+    .nav-mobile {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(6,6,6,0.98);
+      z-index: 99;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 28px;
+    }
+
+    .nav-mobile.open { display: flex; }
+
+    .nav-mobile a {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: var(--text);
+      text-decoration: none;
+      letter-spacing: -0.01em;
+      transition: color 0.2s;
+    }
+
+    .nav-mobile a:hover { color: var(--gold); }
+
+    .nav-close {
+      position: absolute;
+      top: 20px; right: 24px;
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 1.4rem;
+      cursor: pointer;
+    }
+
+    /* ── Theme toggle ─────────────────────────── */
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .theme-toggle {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 5px 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.62rem;
+      color: var(--muted2);
+      letter-spacing: 0.08em;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .theme-toggle:hover { border-color: var(--gold); color: var(--gold); }
+    .theme-toggle svg { width: 13px; height: 13px; flex-shrink: 0; }
+
+    /* star logo on light bg */
+    html.light .nav-logo img {
+      filter: invert(1) drop-shadow(0 0 6px rgba(168,119,30,0.3));
+    }
+
+    /* hero signature on light bg */
+    html.light .hero-logo-text {
+      mix-blend-mode: multiply;
+      filter: contrast(30) brightness(0.92) sepia(0.6) opacity(0.65);
+    }
+
+    /* transition for smooth mode switch */
+    body, nav, .nav-logo img, .hero-logo-text {
+      transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+    }
+
+    /* ── Fade animation ───────────────────────── */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.65s ease, transform 0.65s ease;
+    }
+
+    .fade-up.visible { opacity: 1; transform: none; }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a class="nav-logo" href="#hero"><img src="logo-star.png.png" alt="Bright" /></a>
+    <ul class="nav-center">
+      <li><a href="#about">Style</a></li>
+      <li><a href="#skills">Skills</a></li>
+      <li><a href="#propfirm">Track Record</a></li>
+      <li><a href="blog.html">Blog</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <div class="nav-actions">
+      <span class="nav-right">FIN.ENG / TRADER</span>
+      <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">
+        <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </svg>
+        <span id="themeLabel">LIGHT</span>
+      </button>
+      <button class="nav-burger" onclick="openMobile()"><span></span><span></span><span></span></button>
+    </div>
+  </nav>
+
+  <div class="nav-mobile" id="mobileNav">
+    <button class="nav-close" onclick="closeMobile()">✕</button>
+    <a href="#about" onclick="closeMobile()">Style</a>
+    <a href="#skills" onclick="closeMobile()">Skills</a>
+    <a href="#propfirm" onclick="closeMobile()">Track Record</a>
+    <a href="#contact" onclick="closeMobile()">Contact</a>
+  </div>
+
+  <!-- HERO -->
+  <section id="hero">
+    <div class="hero-main">
+      <div class="hero-eyebrow fade-up">
+        <span class="hero-eyebrow-line"></span>
+        <span class="hero-eyebrow-text">Financial Engineering · Investment Markets</span>
+      </div>
+      <img class="hero-logo-text fade-up" src="logo-text.png.png" alt="Bright signature" />
+      <h1 class="hero-name fade-up">
+        <span class="hero-name-accent">Bright.</span>
+      </h1>
+      <div class="hero-row fade-up">
+        <p class="hero-desc">
+          <strong>Funded trader & Financial Engineering student.</strong>
+          I study markets the way engineers study systems —
+          breaking down volatility, structure, and flow to find
+          where probability tilts in my favor.
+        </p>
+        <div class="hero-actions">
+          <a href="#about" class="btn-primary">View Portfolio</a>
+          <a href="#contact" class="btn-ghost">Get in touch</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-bar">
+      <div class="hero-bar-item fade-up">
+        <span class="hbi-val">4+</span>
+        <span class="hbi-key">Years in Markets</span>
+      </div>
+      <div class="hero-bar-item fade-up">
+        <span class="hbi-val">3</span>
+        <span class="hbi-key">Prop Firms Passed</span>
+      </div>
+      <div class="hero-bar-item fade-up">
+        <span class="hbi-val">Vol</span>
+        <span class="hbi-key">Primary Edge</span>
+      </div>
+      <div class="hero-bar-item fade-up">
+        <span class="hbi-val">FE</span>
+        <span class="hbi-key">Degree in Progress</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRADING STYLE -->
+  <section id="about">
+    <div class="container">
+      <div class="about-layout">
+
+        <div class="about-left fade-up">
+          <span class="sec-label">About Me</span>
+          <h2 class="sec-title">Trading<br/>Style.</h2>
+          <p class="about-intro">
+            Most people come in looking for signals.
+            I came in looking for understanding —
+            <strong>burning every mistake into memory, then reviewing it</strong> — every time the
+            market humbled me.
+            <br/><br/>
+            The journal built the edge. Not the other way around.
+          </p>
+        </div>
+
+        <div>
+          <div class="timeline">
+
+            <div class="tl-item fade-up">
+              <div class="tl-dot"></div>
+              <div class="tl-meta">
+                <span class="tl-phase">Phase 01 —</span>
+                <span class="tl-phase-name">Start my journal</span>
+              </div>
+              <div class="tl-title">SMC &amp; RTM — Reading Institutions</div>
+              <div class="tl-desc">
+                I traded. I blew the account. Then I reviewed
+                every single mistake until I understood why —
+                structure had to come first, always.
+                The journal started on day one.
+              </div>
+              <div class="tl-tags">
+                <span class="tl-tag">SMC</span>
+                <span class="tl-tag">RTM</span>
+                <span class="tl-tag">Dow Theory</span>
+                <span class="tl-tag">Market Structure</span>
+              </div>
+            </div>
+
+            <div class="tl-item fade-up">
+              <div class="tl-dot"></div>
+              <div class="tl-meta">
+                <span class="tl-phase">Phase 02 —</span>
+                <span class="tl-phase-name">Lead</span>
+              </div>
+              <div class="tl-title">Liquidity, Volume &amp; Open Interest</div>
+              <div class="tl-desc">
+                Structure told me <em>where</em>. Volume and OI told me
+                <em>who was behind it</em>. That shift changed everything —
+                from reacting to price, to reading intent before
+                the move even started.
+              </div>
+              <div class="tl-tags">
+                <span class="tl-tag">Liquidity</span>
+                <span class="tl-tag">Volume Profile</span>
+                <span class="tl-tag">Open Interest</span>
+                <span class="tl-tag">CVD</span>
+                <span class="tl-tag">Footprint</span>
+              </div>
+            </div>
+
+            <div class="tl-item current fade-up">
+              <div class="tl-dot"></div>
+              <div class="tl-meta">
+                <span class="tl-phase">Current —</span>
+                <span class="tl-phase-name">to here</span>
+              </div>
+              <div class="tl-title">Volatility, Greeks &amp; Financial Engineering</div>
+              <div class="tl-desc">
+                Now I'm building the math layer. Studying vol surfaces,
+                Greeks, and derivatives at university — while running
+                funded accounts in parallel. The goal isn't just to trade.
+                It's to understand risk at a level most retail traders
+                never reach.
+              </div>
+              <div class="tl-tags">
+                <span class="tl-tag">Volatility</span>
+                <span class="tl-tag">Greeks</span>
+                <span class="tl-tag">Vol2Vol</span>
+                <span class="tl-tag">Quant Finance</span>
+                <span class="tl-tag">Private Equity</span>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="about-quote fade-up">
+            <p>
+              My journey is built on <strong>continuous learning and adaptation</strong> —
+              from not knowing how to trade at all, to developing a system that
+              reflects my own style and edge in the market.
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- SKILLS -->
+  <section id="skills">
+    <div class="container">
+      <div class="skills-header fade-up">
+        <div>
+          <span class="sec-label">Expertise</span>
+          <h2 class="sec-title">Skills &amp; Knowledge.</h2>
+        </div>
+        <span class="skills-count">07 areas</span>
+      </div>
+
+      <div class="skills-list">
+        <div class="skill-row fade-up">
+          <span class="skill-num">01</span>
+          <div class="skill-body">
+            <div class="skill-name">Market Structure &amp; Dow Theory</div>
+            <div class="skill-desc">Identifying trend phases, structure breaks, and key institutional turning points across all timeframes.</div>
+          </div>
+          <div class="skill-tags">
+            <span class="skill-tag">Swing</span><span class="skill-tag">BOS</span><span class="skill-tag">CHoCH</span>
+          </div>
+        </div>
+
+        <div class="skill-row fade-up">
+          <span class="skill-num">02</span>
+          <div class="skill-body">
+            <div class="skill-name">Liquidity &amp; Volume</div>
+            <div class="skill-desc">Reading liquidity pools and volume clusters to anticipate where price is drawn and why it moves.</div>
+          </div>
+          <div class="skill-tags">
+            <span class="skill-tag">VWAP</span><span class="skill-tag">POC</span><span class="skill-tag">Delta</span>
+          </div>
+        </div>
+
+        <div class="skill-row fade-up">
+          <span class="skill-num">03</span>
+          <div class="skill-body">
+            <div class="skill-name">Open Interest</div>
+            <div class="skill-desc">Using OI data to gauge market positioning and detect momentum shifts in derivatives markets.</div>
+          </div>
+          <div class="skill-tags">
+            <span class="skill-tag">OI</span><span class="skill-tag">Futures</span><span class="skill-tag">Options</span>
+          </div>
+        </div>
+
+        <div class="skill-row fade-up">
+          <span class="skill-num">04</span>
+          <div class="skill-body">
+            <div class="skill-name">Volatility2Volatility</div>
+            <div class="skill-desc">Studying implied vs realized vol, term structure, and cross-asset vol relationships for edge discovery.</div>
+          </div>
+          <div class="skill-tags">
+            <span class="skill-tag">IV</span><span class="skill-tag">RV</span><span class="skill-tag">VIX</span>
+          </div>
+        </div>
+
+        <div class="skill-row fade-up">
+          <span class="skill-num">05</span>
+          <div class="skill-body">
+            <div class="skill-name">Prop Firm Trading</div>
+            <div class="skill-desc">Passing funded challenges through disciplined risk management and consistent, rules-based execution.</div>
+          </div>
+          <div class="skill-tags">
+            <span class="skill-tag">FTMO</span><span class="skill-tag">5%ers</span><span class="skill-tag">E8</span>
+          </div>
+        </div>
+
+        <div class="skill-row fade-up">
+          <span class="skill-num">06</span>
+          <div class="skill-body">
+            <div class="skill-name">Private Equity</div>
+            <div class="skill-desc">Understanding PE structures, valuation frameworks, and capital allocation within the investment ecosystem.</div>
+          </div>
+          <div class="skill-tags">
+            <span class="skill-tag">Valuation</span><span class="skill-tag">DCF</span>
+          </div>
+        </div>
+
+        <div class="skill-row fade-up">
+          <span class="skill-num">07</span>
+          <div class="skill-body">
+            <div class="skill-name">Long-Term Investment — Equity Market</div>
+            <div class="skill-desc">Building portfolios through fundamental equity analysis, sector rotation, and macro-driven asset allocation.</div>
+          </div>
+          <div class="skill-tags">
+            <span class="skill-tag">Equity</span><span class="skill-tag">Macro</span><span class="skill-tag">FA</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROP FIRMS -->
+  <section id="propfirm">
+    <div class="container">
+      <div class="firms-header fade-up">
+        <div>
+          <span class="sec-label">Track Record</span>
+          <h2 class="sec-title">Prop Firms.</h2>
+        </div>
+        <p>Funded accounts earned through consistent execution —<br/>not luck, not one good month.</p>
+      </div>
+
+      <div class="certs-grid fade-up">
+
+        <div class="cert-card suspended">
+          <button class="cert-preview-btn" onclick="openCert('FTMO.jpeg')">
+            <img src="FTMO.jpeg" alt="" />
+            <div class="cert-preview-label">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+              VIEW CERTIFICATE
+            </div>
+          </button>
+          <div class="cert-label">Funded Certificate</div>
+          <div class="cert-firm">FTMO</div>
+          <div class="cert-meta">LIVE · $10,000 · 2022</div>
+          <div class="cert-divider"></div>
+          <span class="cert-status suspended">
+            <span class="cert-dot"></span>SUSPENDED
+          </span>
+        </div>
+
+        <div class="cert-card">
+          <button class="cert-preview-btn" onclick="openCert('TOPSTEP.jpg')">
+            <img src="TOPSTEP.jpg" alt="" />
+            <div class="cert-preview-label">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+              VIEW CERTIFICATE
+            </div>
+          </button>
+          <div class="cert-label">Funded Certificate</div>
+          <div class="cert-firm">Topstep</div>
+          <div class="cert-meta">LIVE · $50,000 · 2026</div>
+          <div class="cert-divider"></div>
+          <span class="cert-status">
+            <span class="cert-dot"></span>FUNDED
+          </span>
+          <div class="cert-gold-line"></div>
+        </div>
+
+        <div class="cert-card">
+          <button class="cert-preview-btn" onclick="openCert('ATMOS.jpg')">
+            <img src="ATMOS.jpg" alt="" />
+            <div class="cert-preview-label">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5"><path d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+              VIEW CERTIFICATE
+            </div>
+          </button>
+          <div class="cert-label">Funded Certificate</div>
+          <div class="cert-firm">Atmos Funded</div>
+          <div class="cert-meta">LIVE · $10,000 · 2026</div>
+          <div class="cert-divider"></div>
+          <span class="cert-status">
+            <span class="cert-dot"></span>FUNDED
+          </span>
+          <div class="cert-gold-line"></div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <div class="container">
+      <div class="contact-layout">
+        <div class="contact-left fade-up">
+          <span class="sec-label">Contact</span>
+          <h2 class="sec-title">Let's talk.</h2>
+          <p>
+            Want to talk markets, trading, or just connect —
+            reach out. I respond to everyone.
+          </p>
+        </div>
+        <div class="contact-right fade-up">
+          <a href="https://instagram.com/swchua_" target="_blank" class="contact-link">
+            <div class="contact-link-label">
+              <span class="contact-link-icon">📸</span>
+              <div>
+                <div class="contact-link-name">Instagram</div>
+                <div class="contact-link-sub">@swchua_</div>
+              </div>
+            </div>
+            <span class="contact-link-arrow">↗</span>
+          </a>
+          <a href="mailto:reversechoco999@gmail.com" class="contact-link">
+            <div class="contact-link-label">
+              <span class="contact-link-icon">✉</span>
+              <div>
+                <div class="contact-link-name">Email</div>
+                <div class="contact-link-sub">reversechoco999@gmail.com</div>
+              </div>
+            </div>
+            <span class="contact-link-arrow">↗</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <span class="footer-logo">BRIGHT.TRADE</span>
+    <div class="footer-links">
+      <a href="#about">Style</a>
+      <a href="#skills">Skills</a>
+      <a href="#propfirm">Track Record</a>
+      <a href="blog.html">Blog</a>
+    </div>
+    <span class="footer-copy">© <span id="footer-year"></span> Bright. All rights reserved.</span>
+  </footer>
+
+  <script>
+    // ── Theme toggle ──────────────────────────────
+    const sunIcon = `<path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42M12 5a7 7 0 1 0 0 14A7 7 0 0 0 12 5z"/>`;
+    const moonIcon = `<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>`;
+
+    function applyTheme(isLight) {
+      const html = document.documentElement;
+      const icon = document.getElementById('themeIcon');
+      const label = document.getElementById('themeLabel');
+      if (isLight) {
+        html.classList.add('light');
+        icon.innerHTML = sunIcon;
+        label.textContent = 'DARK';
+      } else {
+        html.classList.remove('light');
+        icon.innerHTML = moonIcon;
+        label.textContent = 'LIGHT';
+      }
+    }
+
+    function toggleTheme() {
+      const isLight = !document.documentElement.classList.contains('light');
+      localStorage.setItem('theme', isLight ? 'light' : 'dark');
+      applyTheme(isLight);
+    }
+
+    // Load saved preference
+    applyTheme(localStorage.getItem('theme') === 'light');
+
+    function openMobile() { document.getElementById('mobileNav').classList.add('open'); }
+    function closeMobile() { document.getElementById('mobileNav').classList.remove('open'); }
+
+    function openCert(src) {
+      const lb = document.getElementById('certLightbox');
+      document.getElementById('certLightboxImg').src = src;
+      lb.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeCert() {
+      document.getElementById('certLightbox').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeCert(); });
+
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach((e, i) => {
+        if (e.isIntersecting) {
+          setTimeout(() => e.target.classList.add('visible'), (e.target.dataset.i || 0) * 80);
+          obs.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.fade-up').forEach((el, i) => {
+      el.dataset.i = i % 5;
+      obs.observe(el);
+    });
+
+    document.getElementById('footer-year').textContent = new Date().getFullYear();
+  </script>
+
+  <!-- CERTIFICATE LIGHTBOX -->
+  <div class="cert-lightbox" id="certLightbox" onclick="closeCert()">
+    <button class="cert-lightbox-close" onclick="closeCert()">✕</button>
+    <img id="certLightboxImg" src="" alt="Certificate" onclick="event.stopPropagation()" />
+  </div>
+
+</body>
+</html>
